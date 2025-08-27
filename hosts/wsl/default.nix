@@ -2,15 +2,20 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{ config, lib, username, modulesPath, pkgs, ... }:
 
 {
   imports =
     [
       # ../hardware-configuration/x1c.nix	#wsl no need hardware config	#comment by ylagr
-      ../cachix.nix
+      (modulesPath + "/installer/scan/not-detected.nix")     #add by ylagr
+      ../../cachix.nix
     ];
-
+  wsl = {
+    enable = true;
+    defaultUser = "${username}";
+    startMenuLaunchers = true;
+  };
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -21,7 +26,7 @@
   # Use latest kernel.
   # boot.kernelPackages = pkgs.linuxPackages_latest;	#comment by ylagr
 
-  networking.hostName = "x1c"; # Define your hostname.
+  networking.hostName = "wsl"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.	#comment by ylagr
@@ -88,6 +93,10 @@
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
+    tree
+    file
+    wslu                        # add by ylagr
+    wsl-open                    # add by ylagr
     mg
     git
     wget
@@ -108,9 +117,10 @@
   fonts.packages = with pkgs; [
     # font-awesome #comment by ylagr
     noto-fonts
+    ubuntu_font_family
     # nerd-fonts.arimo	#comment by ylagr
-    nerd-fonts.ubuntu-mono	 #add by ylagr
-    lxgw-wenkai			 #add by ylagr
+    # nerd-fonts.ubuntu-mono	 #add by ylagr
+    # lxgw-wenkai			 #add by ylagr
     # wqy_microhei		 #comment by ylagr
     nerd-fonts.bigblue-terminal
   ];
@@ -150,11 +160,11 @@
   };
 
   hardware.graphics = {
-    enable = false; #source value is true	#comment by ylagr
-    extraPackages = with pkgs; [
-      intel-vaapi-driver
-      vpl-gpu-rt
-    ];
+    enable = true; #source value is true	#comment by ylagr
+    # extraPackages = with pkgs; [ #comment by ylagr
+    # intel-vaapi-driver
+    # vpl-gpu-rt
+    # ];
   };
 
   services.tlp.enable = true;	#笔记本电池节省工具	#comment by ylagr
